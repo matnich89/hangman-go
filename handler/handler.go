@@ -56,9 +56,11 @@ func (h *Handler) MakeGuessForGame(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	h.service.Guess(guess.Id, guess.Letter)
-
+	updatedGame, err := h.service.Guess(guess.Id, guess.Letter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusConflict)
+	}
+	bytes, err := json.Marshal(updatedGame)
 	w.WriteHeader(http.StatusOK)
-
+	_, _ = w.Write(bytes)
 }

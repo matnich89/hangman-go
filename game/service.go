@@ -12,7 +12,7 @@ import (
 type Service interface {
 	Create() *Game
 	AddPlayer(id uuid.UUID) error
-	Guess(id uuid.UUID, letter string)
+	Guess(id uuid.UUID, letter string) (*Game, error)
 	Get(id uuid.UUID) *Game
 }
 
@@ -49,21 +49,24 @@ func (s *GameService) AddPlayer(id uuid.UUID) error {
 	return nil
 }
 
-func (s *GameService) Guess(id uuid.UUID, letter string) *Game {
+func (s *GameService) Guess(id uuid.UUID, letter string) (*Game, error) {
 	game := s.store.Get(id)
 	game.Lock()
 	defer game.Unlock()
+	if !isLetterAvailable(letter, game.UsedCharacters) {
+		return nil, errors.New(fmt.Sprintf("the letter %s has already been used", letter))
+	}
 	game.AttemptsLeft--
 	game.UsedCharacters = append(game.UsedCharacters, letter)
 	if isSolved(game.Word, game.UsedCharacters) {
 		game.Status = StatusFinishedWin
-		return game
+		return game, nil
 	}
 	if game.AttemptsLeft <= 0 {
 		game.Status = StatusFinishedLose
-		return game
+		return game, nil
 	}
-	return game
+	return game, nil
 }
 
 func (s *GameService) Get(id uuid.UUID) *Game {
@@ -87,4 +90,13 @@ func isSolved(word string, usedCharacters []string) bool {
 		}
 	}
 	return solved
+}
+
+func isLetterAvailable(letter string, used []string) bool {
+	for _, usedLetter := range used {
+		if usedLetter == letter {
+			return false
+		}
+	}
+	return true
 }

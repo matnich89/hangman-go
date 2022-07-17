@@ -34,8 +34,19 @@ var _ = Describe("Game Service", func() {
 		uuid, err := uuid.NewUUID()
 		mockStore.On("Get", uuid).Return(generateGame([]string{}, 3, 0))
 		Expect(err).NotTo(HaveOccurred())
-		game := service.Guess(uuid, "z")
+		game, err := service.Guess(uuid, "z")
+		Expect(err).ToNot(HaveOccurred())
 		Expect(game.AttemptsLeft).To(Equal(2))
+	})
+
+	It("should handle a guess attempt with a used letter", func() {
+		service := game.NewGameService(mockStore)
+		uuid, err := uuid.NewUUID()
+		Expect(err).NotTo(HaveOccurred())
+		mockStore.On("Get", uuid).Return(generateGame([]string{"z"}, 3, 0))
+		game, err := service.Guess(uuid, "z")
+		Expect(err).To(HaveOccurred())
+		Expect(game).To(BeNil())
 	})
 
 	It("should add a player to a game", func() {
