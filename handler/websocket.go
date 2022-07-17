@@ -22,13 +22,15 @@ func (h *Handler) AddClient(client *websocket.Conn, gameId uuid.UUID) {
 	}
 	h.connections.Append(ws)
 	go ws.Listen()
-	time.Sleep(100 * time.Millisecond)
 }
 
-func (h *Handler) BroadCast() {
+func (h *Handler) Broadcast() {
 	for {
 		for _, client := range h.connections.clients {
-			game := h.service.Get(client.gameId)
+			game, err := h.service.Get(client.gameId)
+			if err != nil {
+				client.conn.Close()
+			}
 			client.conn.WriteJSON(game)
 		}
 		time.Sleep(200 * time.Millisecond) // artificial delay so that data can be read clearly

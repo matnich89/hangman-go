@@ -45,7 +45,7 @@ func (_m *Service) Create() *game.Game {
 }
 
 // Get provides a mock function with given fields: id
-func (_m *Service) Get(id uuid.UUID) *game.Game {
+func (_m *Service) Get(id uuid.UUID) (*game.Game, error) {
 	ret := _m.Called(id)
 
 	var r0 *game.Game
@@ -57,7 +57,14 @@ func (_m *Service) Get(id uuid.UUID) *game.Game {
 		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Guess provides a mock function with given fields: id, letter

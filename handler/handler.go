@@ -44,6 +44,7 @@ func (h *Handler) ConnectGame(w http.ResponseWriter, r *http.Request) {
 		_ = conn.Close()
 		return
 	}
+	h.service.Get(gameId)
 	h.AddClient(conn, gameId)
 	err = h.service.AddPlayer(gameId)
 	if err != nil {

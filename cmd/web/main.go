@@ -20,7 +20,7 @@ func main() {
 		wg:      sync.WaitGroup{},
 	}
 
-	go app.handler.BroadCast()
+	go app.handler.Broadcast()
 	err := app.serve()
 
 	if err != nil {

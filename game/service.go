@@ -13,7 +13,7 @@ type Service interface {
 	Create() *Game
 	AddPlayer(id uuid.UUID) error
 	Guess(id uuid.UUID, letter string) (*Game, error)
-	Get(id uuid.UUID) *Game
+	Get(id uuid.UUID) (*Game, error)
 }
 
 type GameService struct {
@@ -69,8 +69,12 @@ func (s *GameService) Guess(id uuid.UUID, letter string) (*Game, error) {
 	return game, nil
 }
 
-func (s *GameService) Get(id uuid.UUID) *Game {
-	return s.store.Get(id)
+func (s *GameService) Get(id uuid.UUID) (*Game, error) {
+	game := s.store.Get(id)
+	if game == nil {
+		return nil, errors.New(fmt.Sprintf("game is id %s does not exist", id.String()))
+	}
+	return game, nil
 }
 
 func isSolved(word string, usedCharacters []string) bool {
