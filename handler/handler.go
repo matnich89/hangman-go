@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"hangman/game"
+	"log"
 	"net/http"
 )
 
@@ -32,8 +33,8 @@ func (h *Handler) CreateGame(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ConnectGame(w http.ResponseWriter, r *http.Request) {
 	conn, err := UpgradeConnection.Upgrade(w, r, nil)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		_ = conn.WriteMessage(websocket.TextMessage, []byte("Could not upgrade connection"))
+		_ = conn.Close()
 	}
 	params := mux.Vars(r)
 	gameIdParam := params["id"]
@@ -44,7 +45,10 @@ func (h *Handler) ConnectGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.AddClient(conn, gameId)
-	h.service.AddPlayer(gameId)
+	err = h.service.AddPlayer(gameId)
+	if err != nil {
+		log.Printf("error %s  when trying to update player count for game %s", err.Error(), gameId.String())
+	}
 }
 
 func (h *Handler) MakeGuessForGame(w http.ResponseWriter, r *http.Request) {
