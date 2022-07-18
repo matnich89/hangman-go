@@ -49,6 +49,26 @@ var _ = Describe("Game Service", func() {
 		Expect(game).To(BeNil())
 	})
 
+	It("should process a game as solved when word has been guessed", func() {
+		service := game.NewGameService(mockStore)
+		uuid, err := uuid.NewUUID()
+		Expect(err).NotTo(HaveOccurred())
+		mockStore.On("Get", uuid).Return(generateGame([]string{"c", "a", "z", "y"}, 6, 0))
+		game, err := service.Guess(uuid, "t")
+		Expect(err).ToNot(HaveOccurred())
+		Expect(game.Status).To(Equal(1))
+	})
+
+	It("should process a game as lost when all attempts used", func() {
+		service := game.NewGameService(mockStore)
+		uuid, err := uuid.NewUUID()
+		Expect(err).NotTo(HaveOccurred())
+		mockStore.On("Get", uuid).Return(generateGame([]string{}, 1, 0))
+		game, err := service.Guess(uuid, "t")
+		Expect(err).ToNot(HaveOccurred())
+		Expect(game.Status).To(Equal(2))
+	})
+
 	It("should add a player to a game", func() {
 		service := game.NewGameService(mockStore)
 		uuid, err := uuid.NewUUID()
