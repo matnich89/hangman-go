@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 	"time"
 )
@@ -33,6 +34,7 @@ func (h *Handler) Broadcast() {
 		for _, client := range h.connections.clients {
 			game, err := h.service.Get(client.gameId)
 			if err != nil {
+				log.Println("error occured when broadcasting ")
 				client.conn.Close()
 				h.connections.Remove(client)
 			}
