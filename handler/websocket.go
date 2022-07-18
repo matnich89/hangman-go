@@ -3,7 +3,6 @@ package handler
 import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"log"
 	"net/http"
 	"time"
 )
@@ -31,9 +30,6 @@ func (h *Handler) RemoveClient(client *WebsocketConnection) {
 
 func (h *Handler) Broadcast() {
 	for {
-		if len(h.connections.clients) <= 0 {
-			log.Println("currently no clients")
-		}
 		for _, client := range h.connections.clients {
 			game, err := h.service.Get(client.gameId)
 			if err != nil {
