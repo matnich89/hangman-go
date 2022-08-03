@@ -14,7 +14,8 @@ type app struct {
 }
 
 func (a *app) routes() {
-	a.mux.HandleFunc("/create", a.handler.CreateGame).Methods(http.MethodGet)
+	a.mux.HandleFunc("/create", a.handler.CreateGame).Methods(http.MethodPost)
 	a.mux.HandleFunc("/connect/{id}", a.handler.ConnectGame).Methods(http.MethodGet)
 	a.mux.HandleFunc("/guess/{id}", a.handler.MakeGuessForGame).Methods(http.MethodPut)
+	a.mux.HandleFunc("/healthcheck", a.handler.HealthCheck).Methods(http.MethodGet)
 }

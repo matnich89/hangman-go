@@ -66,6 +66,12 @@ func (h *Handler) MakeGuessForGame(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusConflict)
 	}
 	bytes, err := json.Marshal(updatedGame)
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(bytes)
+}
+
+func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	log.Println("Health check endpoint hit")
+	w.WriteHeader(http.StatusOK)
 }
